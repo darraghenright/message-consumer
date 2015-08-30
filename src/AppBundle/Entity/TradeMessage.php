@@ -140,7 +140,7 @@ class TradeMessage
      */
     public function hasValidRateAmountSellAndAmountBuy()
     {
-
+        return $this->amountBuy === $this->amountSell * $this->rate;
     }
 
     /**
