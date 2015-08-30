@@ -55,12 +55,19 @@ class TradeController extends Controller
         }
 
         $message = new TradeMessage();
+
         $message->fromArray($data);
         $message->transformData();
 
-        // persist!
+        $errors = $this->get('validator')->validate($message);
 
-        return new JsonResponse(['data' => '1']);
+        if (0 !== $errors->count()) {
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return new JsonResponse(['message' => 'Trade Message was created'], 201);
     }
 
     /**

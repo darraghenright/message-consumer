@@ -131,6 +131,45 @@ class TradeMessage
     private $originatingCountry;
 
     /**
+     * @return boolean
+     *
+     * @Assert\True(
+     *     message="Values validate rate, amountSell and amountBy do not appear to match",
+     *     groups={"integrityCheckRate"}
+     * )
+     */
+    public function hasValidRateAmountSellAndAmountBuy()
+    {
+
+    }
+
+    /**
+     * @return boolean
+     *
+     * @Assert\True(
+     *     message="Value timePlaced is not valid",
+     *     groups={"integrityCheckTime"}
+     * )
+     */
+    public function hasValidTimePlaced()
+    {
+
+    }
+
+    /**
+     * @return boolean
+     *
+     * @Assert\True(
+     *     message="Values currencyFrom and currencyTo should not match",
+     *     groups={"integrityCheckCurrency"}
+     * )
+     */
+    public function hasDifferentCurrencyFromAndCurrencyTo()
+    {
+
+    }
+
+    /**
      * fromArray
      *
      * Populate the current object

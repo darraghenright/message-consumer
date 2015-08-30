@@ -14,6 +14,19 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class TradeMessageTest extends WebTestCase
 {
     /**
+     * setUp
+     *
+     * Make validator service
+     * available in tests.
+     */
+    public function setUp()
+    {
+        $this->validator = static::createClient()
+            ->getContainer()
+            ->get('validator');
+    }
+
+    /**
      * testFromArray
      *
      * Ensure all properties are being
@@ -93,9 +106,7 @@ class TradeMessageTest extends WebTestCase
         $message = (new TradeMessage())
             ->setCurrencyFrom($currencyFrom);
 
-        $validator = static::createClient()->getContainer()->get('validator');
-
-        $errors = $validator->validate($message, ['currencyFrom']);
+        $errors = $this->validator->validate($message, ['currencyFrom']);
         $result = 0 === $errors->count();
 
         $this->assertSame($expected, $result);
@@ -111,9 +122,7 @@ class TradeMessageTest extends WebTestCase
         $message = (new TradeMessage())
             ->setCurrencyTo($currencyTo);
 
-        $validator = static::createClient()->getContainer()->get('validator');
-
-        $errors = $validator->validate($message, ['currencyTo']);
+        $errors = $this->validator->validate($message, ['currencyTo']);
         $result = 0 === $errors->count();
 
         $this->assertSame($expected, $result);
@@ -129,9 +138,93 @@ class TradeMessageTest extends WebTestCase
         $message = (new TradeMessage())
             ->setOriginatingCountry($originatingCountry);
 
-        $validator = static::createClient()->getContainer()->get('validator');
+        $errors = $this->validator->validate($message, ['originatingCountry']);
+        $result = 0 === $errors->count();
 
-        $errors = $validator->validate($message, ['originatingCountry']);
+        $this->assertSame($expected, $result);
+    }
+
+    function testValidatorCompleteMessage()
+    {
+        $message = new TradeMessage();
+
+        $errors = $this->validator->validate($message);
+
+        // no data set
+        $this->assertTrue(0 !== $errors->count());
+
+        // valid
+        $message->fromArray([
+            'userId'             => '134256',
+            'currencyFrom'       => 'EUR',
+            'currencyTo'         => 'GBP',
+            'amountSell'         => 1000,
+            'amountBuy'          => 747.10,
+            'rate'               => 0.7471,
+            'timePlaced'         => '24-JAN-15 10:27:44',
+            'originatingCountry' => 'FR',
+        ]);
+
+        $message->transformData();
+        $errors = $this->validator->validate($message);
+
+        $this->assertTrue(0 === $errors->count());
+    }
+
+    /**
+     * testHasValidRateAmountSellAndAmountBuy
+     *
+     * Ensure entity-level validation
+     * works for rate.
+     */
+    public function testHasValidRateAmountSellAndAmountBuy()
+    {
+        $message = (new TradeMessage())
+            ->setAmountBuy(747.10)
+            ->setAmountSell(1000)
+            ->setRate(0.7471);
+
+        $errors = $this->validator->validate($message, ['integrityCheckRate']);
+
+        $this->assertTrue(0 === $errors->count());
+
+        $message->setAmountBuy(999.10);
+        $errors = $this->validator->validate($message, ['integrityCheckRate']);
+
+        $this->assertTrue(0 !== $errors->count());
+    }
+
+    /**
+     * testHasValidTimePlaced
+     *
+     * @dataProvider providerHasValidTimePlaced
+     */
+    public function testHasValidTimePlaced($modify, $expected)
+    {
+        $dt = new DateTime();
+        $dt->modify($modify);
+
+        $message = (new TradeMessage())
+            ->setTimePlaced($dt);
+
+        $errors = $this->validator->validate($message, ['integrityCheckTime']);
+        $result = 0 === $errors->count();
+
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * testHasDifferentCurrencyFromAndCurrencyTo
+     *
+     * @dataProvider providerHasDifferentCurrencyFromAndCurrencyTo
+     */
+    public function testHasDifferentCurrencyFromAndCurrencyTo($currencyFrom, $currencyTo, $expected)
+    {
+        $message = (new TradeMessage())
+            ->setCurrencyFrom($currencyFrom)
+            ->setCurrencyTo($currencyTo);
+
+        $errors = $this->validator->validate($message, ['integrityCheckCurrency']);
         $result = 0 === $errors->count();
 
         $this->assertSame($expected, $result);
@@ -217,4 +310,35 @@ class TradeMessageTest extends WebTestCase
             // etc.
         ];
     }
+
+    /**
+     * providerHasValidTimePlaced
+     *
+     * @return array
+     */
+    public function providerHasValidTimePlaced()
+    {
+        return [
+            ['+0 seconds',  true],
+            ['-1 seconds',  true],
+            ['-1 minute',   true],
+            ['-1 month',    true],
+            ['+1 seconds', false],
+            ['+1 minute',  false],
+            ['+1 month',   false],
+        ];
+    }
+    /**
+     * providerHasDifferentCurrencyFromAndCurrencyTo
+     *
+     * @return array
+     */
+    public function providerHasDifferentCurrencyFromAndCurrencyTo()
+    {
+        return [
+            ['EUR', 'USD',  true],
+            ['USD', 'USD', false],
+        ];
+    }
+
 }

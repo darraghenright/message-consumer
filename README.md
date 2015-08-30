@@ -75,12 +75,7 @@ A request containing a valid Trade Message is a well-formed JSON payload that va
 }
 ```
 
-Additionally, the JSON structure provided is considered invalid if:
-
-* *expected* fields are missing
-* *unexpected* fields are present
-
-A JSON payload that does not strictly comply to the structure defined returns a HTTP Status Code of `422 Unprocessable Entity`.
+A JSON payload that does not strictly comply to the structure defined returns a HTTP Status Code of `422 Unprocessable Entity`. Extra fields are filtered, and missing fields are flagged by data validation.
 
 ### Data Validation
 
