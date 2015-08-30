@@ -86,7 +86,7 @@ class TradeMessage
     /**
      * @var string
      *
-     * @ORM\Column(name="rate", type="decimal", scale=2)
+     * @ORM\Column(name="rate", type="decimal", scale=6)
      *
      * @Assert\NotBlank(message="rate is blank")
      */

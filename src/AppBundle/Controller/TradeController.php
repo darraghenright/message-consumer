@@ -56,6 +56,7 @@ class TradeController extends Controller
 
         $message = new TradeMessage();
         $message->fromArray($data);
+        $message->transformData();
 
         // persist!
 
