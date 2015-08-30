@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="trade_message")
  * @ORM\Entity
+ *
+ * @author Darragh Enright <darraghenright@gmail.com>
  */
 class TradeMessage
 {

@@ -17,6 +17,11 @@ class TradeControllerTest extends WebTestCase
     const ERR_CONTENT_TYPE = '{"message":"Content-Type must be application\/json"}';
 
     /**
+     * @string
+     */
+    const ERR_JSON_MALFORMED = 'Syntax error, malformed JSON';
+
+    /**
      * setUp
      */
     public function setUp()
@@ -59,7 +64,7 @@ class TradeControllerTest extends WebTestCase
     }
 
     /**
-     * testAllowMethodPost
+     * testMethodPostIsAllowed
      *
      * Ensure that only method POST is
      * accepted. All other methods should
@@ -113,6 +118,22 @@ class TradeControllerTest extends WebTestCase
 
         $this->assertTrue($request->headers->contains('Content-Type', 'application/json'));
         $this->assertNotSame(self::ERR_CONTENT_TYPE, $response->getContent());
+    }
+
+    /**
+     * testMalformedJsonIsBadRequest
+     */
+    public function testMalformedJsonIsBadRequest()
+    {
+        $server  = ['CONTENT_TYPE'  => 'application/json'];
+        $content = '{}]';
+
+        $this->client->request('POST', $this->endpoint, [], [], $server, $content);
+
+        $response = $this->client->getResponse();
+
+        $this->assertSame(self::ERR_JSON_MALFORMED, $response->getContent());
+        $this->assertSame(400, $response->getStatusCode());
     }
 
     /**

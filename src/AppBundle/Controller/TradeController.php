@@ -38,18 +38,38 @@ class TradeController extends Controller
      */
     public function messageAction(Request $request)
     {
-        if ('json' !== $request->getContentType()) {
+        if (!$this->isValidContentType($request)) {
             return new JsonResponse([
                 'message' => 'Content-Type must be application/json',
             ], 400);
         }
 
-        // parse json
+        // try {
+        //     $data = $this->parseJsonRequest($request);
+        // } catch (RuntimeException $e) {
+        //     return new JsonResponse([
+        //         'message' => $e->getMessage(),
+        //     ], 400);
+        // }
 
         // validate json structure
 
         // persist!
 
         return new JsonResponse(['data' => '1']);
+    }
+
+    /**
+     * isValidContentType
+     *
+     * Ensure that the request Content-Type
+     * is `application/json`.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request $request
+     * @return boolean
+     */
+    private function isValidContentType(Request $request)
+    {
+        return 'json' === $request->getContentType();
     }
 }
