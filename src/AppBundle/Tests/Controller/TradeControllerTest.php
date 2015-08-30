@@ -12,6 +12,11 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class TradeControllerTest extends WebTestCase
 {
     /**
+     * @string
+     */
+    const ERR_CONTENT_TYPE = '{"message":"Content-Type must be application\/json"}';
+
+    /**
      * setUp
      */
     public function setUp()
@@ -69,34 +74,45 @@ class TradeControllerTest extends WebTestCase
     }
 
     /**
-     * testInvalidContentType
+     * testInvalidRequestContentType
      *
      * Ensure that the request contains Content-Type
      * of `application/json`. Otherwise return status
      * `400 Bad Request` with error message.
      */
-    public function testInvalidContentType()
+    public function testInvalidRequestContentType()
     {
-        $this->client->request('POST', $this->endpoint, [], [], ['Content-Type'  => 'plain/text']);
-        $statusCode = $this->client->getResponse()->getStatusCode();
-        $content = $this->client->getResponse()->getContent();
+        $server  = ['CONTENT_TYPE'  => 'plain/text'];
+        $content = '{}';
 
-        $this->assertSame(400, $statusCode);
-        $this->assertSame('{"message":"Content-Type must be application/json"}');
+        $this->client->request('POST', $this->endpoint, [], [], $server, $content);
+
+        $request  = $this->client->getRequest();
+        $response = $this->client->getResponse();
+
+        $this->assertFalse($request->headers->contains('Content-Type', 'application/json'));
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame(self::ERR_CONTENT_TYPE, $response->getContent());
     }
 
     /**
-     * testValidContentType
+     * testValidRequestContentType
      *
      * Ensure that the request contains Content-Type
      * of `application/json`.
      */
-    public function testValidContentType()
+    public function testValidRequestContentType()
     {
-        $this->client->request('POST', $this->endpoint, [], [], ['Content-Type'  => 'application/json']);
-        $content = $this->client->getResponse()->getContent();
+        $server  = ['CONTENT_TYPE'  => 'application/json'];
+        $content = '{}';
 
-        $this->assertNotSame('{"message":"Content-Type must be application/json"}');
+        $this->client->request('POST', $this->endpoint, [], [], $server, $content);
+
+        $request  = $this->client->getRequest();
+        $response = $this->client->getResponse();
+
+        $this->assertTrue($request->headers->contains('Content-Type', 'application/json'));
+        $this->assertNotSame(self::ERR_CONTENT_TYPE, $response->getContent());
     }
 
     /**
