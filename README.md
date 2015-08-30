@@ -141,7 +141,7 @@ However, the requirement specification does not currently specify the currencies
 
 ### Development
 
-The application is built in PHP using Symfony2 version `2.7.*`. Once the repository is cloned, run `composer update`. You will be prompted for the following configuration parameters:
+The application is built in PHP using Symfony2 version `2.7.*`. The latest version of PHP is recommended, and some features require >= `5.4`. Once the repository is cloned, run `composer update`. You will be prompted for the following configuration parameters:
 
 * `database_host`
 * `database_port`
@@ -176,6 +176,49 @@ A suite of unit and functional tests accompany the implementation. Tests can be 
 
 ### Deployment
 
-...
+The Message Consumer can be deployed to AWS Elastic Beanstalk using the Elastic Beanstalk Command Line Interface (EB CLI).
 
-----
+Deployment actions are configured in `.ebextensions/message-consumer.config`. On deployment, this script will run deployment commands and hooks, and configure environmental variables.
+
+#### Init
+
+Follow the steps to initialise the application for deployment:
+
+* Run `eb init` (with optional `--profile eb-myprofilename`)
+* Select a default region; e.g: `eu-west-1` (Ireland)
+* Enter Application Name; e.g: `consumer`
+* Select a platform; e.g: `PHP`
+* Select a platform version; e.g: `PHP 5.6`
+* Do you want to set up SSH for your instances? `y`
+* Type a keypair name; e.g: `mykeypairname` (with optional passphrase)
+
+A configuration should now be located at `.elasticbeanstalk/config.yml`
+
+### Create
+
+Next, create an environment and deploy the application:
+
+* `eb create --database` to create with RDS instance
+* Enter Environment Name; e.g: `consumer-dev`
+* Enter DNS CNAME prefix; e.g: `consumer-dev`
+* Enter an RDS DB username
+* Enter an RDS DB master password
+
+The process will then begin - git zip will be uploaded and application
+will be bootstrapped. This will take a few minutes.
+
+RDS DB parameters are automatically injected into the environment as `RDS_*` environment variables. The application transparently uses these values automatically if present. This is specified in `composer.json` under `extra.incenteev-parameters.env-map`; i.e:
+
+```
+"incenteev-parameters": {
+    "file": "app/config/parameters.yml",
+    "env-map": {
+        "database_host": "RDS_HOSTNAME",
+        "database_port": "RDS_PORT",
+        "database_name": "RDS_DB_NAME",
+        "database_user": "RDS_USERNAME",
+        "database_pass": "RDS_PASSWORD"
+    }
+}
+```
+Once Elastic Beanstalk finishes uploading, building and configuring the environment, the application should be live.
