@@ -84,6 +84,8 @@ A JSON payload that does not strictly comply to the structure defined returns a 
 
 ### Data Validation
 
+#### Fields
+
 Values for all fields are required. The JSON data provided is considered invalid if any field is blank. Based on the example JSON payload provided, valid data for each field is:
 
 * `userId` - `string`
@@ -95,13 +97,15 @@ Values for all fields are required. The JSON data provided is considered invalid
 * `timePlaced` - type `string` corresponding to date format `j-M-y H:i:s`
 * `originatingCountry` - type `string` corresponding to 2-digit ISO 3166-1 Alpha-2 Country Code
 
-The values of `rate`, `amountSell` and `amountBuy` are inter-related. `amountBuy` is the product of `amountSell` and `rate`; i.e:
+#### Data Integrity
 
-````
-amountSell * rate = amountBuy
-````
+Validation will be performed to cross-check and ensure the integrity of the data contained in these fields where possible, including:
 
-Validation will be performed to cross-check and ensure the integrity of the data contained in these fields.
+1. The values of `rate`, `amountSell` and `amountBuy` are inter-related. `amountBuy` is the product of `amountSell` and `rate`; i.e: `amountSell * rate = amountBuy`.
+
+2. All times are assumed to be UTC. The value for `timePlaced` should not be greater than the time the request is received. 
+
+3. The values for `currencyFrom` and `currencyTo` should not match.
 
 *ISO Code Data Sources:*
 
@@ -115,6 +119,6 @@ The following data will be transformed prior to data persistence:
 * `timePlaced` will be reformatted according to MySQL's `datetime` format; i.e: `Y-m-d H:i:s`
 * `amountSell` and `amountBuy` will be converted to `float`
 
-The values of `amountSell` and `amountBuy` may also be converted to their centesimal representation, assuming that each value received is a monetary unit (USD, EUR, GBP) with 1/100th subdivisions, (cents or pence) and stored internally as type `integer`.
+*Note*: The values of `amountSell` and `amountBuy` may also be converted to their centesimal representation, assuming that each value received is a monetary unit (USD, EUR, GBP) with 1/100th subdivisions, (cents or pence) and stored internally as type `integer`.
 
 However, the requirement specification does not currently specify the currencies the Message Consumer expects to receive, and since not all currencies are centesimal (e.g Japanese Yen), values will not currently be transformed in this manner.

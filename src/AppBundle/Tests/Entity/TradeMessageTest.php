@@ -84,6 +84,60 @@ class TradeMessageTest extends WebTestCase
     }
 
     /**
+     * testValidatorCurrencyFrom
+     *
+     *@dataProvider providerValidatorCurrency
+     */
+    function testValidatorCurrencyFrom($currencyFrom, $expected)
+    {
+        $message = (new TradeMessage())
+            ->setCurrencyFrom($currencyFrom);
+
+        $validator = static::createClient()->getContainer()->get('validator');
+
+        $errors = $validator->validate($message, ['currencyFrom']);
+        $result = 0 === $errors->count();
+
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * testValidatorCurrencyTo
+     *
+     * @dataProvider providerValidatorCurrency
+     */
+    function testValidatorCurrencyTo($currencyTo, $expected)
+    {
+        $message = (new TradeMessage())
+            ->setCurrencyTo($currencyTo);
+
+        $validator = static::createClient()->getContainer()->get('validator');
+
+        $errors = $validator->validate($message, ['currencyTo']);
+        $result = 0 === $errors->count();
+
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * testValidatorOriginatingCountry
+     *
+     * @dataProvider providerValidatorOriginatingCountry
+     */
+    function testValidatorOriginatingCountry($originatingCountry, $expected)
+    {
+        $message = (new TradeMessage())
+            ->setOriginatingCountry($originatingCountry);
+
+        $validator = static::createClient()->getContainer()->get('validator');
+
+        $errors = $validator->validate($message, ['originatingCountry']);
+        $result = 0 === $errors->count();
+
+        $this->assertSame($expected, $result);
+    }
+
+    /**
      * providerInvalidDateTransformation
      *
      * @return array
@@ -113,6 +167,54 @@ class TradeMessageTest extends WebTestCase
             ['24-JAN-15 10:27:44', '2015-01-24 10:27:44'],
             ['1-JAN-15 1:27:44',   '2015-01-01 01:27:44'],
             ['01-JAN-15 01:27:44', '2015-01-01 01:27:44'],
+        ];
+    }
+
+    /**
+     * providerValidatorCurrencyTo
+     *
+     * @return array
+     */
+    public function providerValidatorCurrency()
+    {
+        return [
+            ['EUR',  true],
+            ['GBP',  true],
+            ['USD',  true],
+            ['XYZ', false],
+            ['123', false],
+            ['A',   false],
+            ['UK',  false],
+            ['...', false],
+            ['.',   false],
+            ['',    false],
+            [null,  false],
+            [false, false],
+            [1,     false],
+            // etc.
+        ];
+    }
+
+    /**
+     * providerValidatorOriginatingCountry
+     *
+     * @return array
+     */
+    public function providerValidatorOriginatingCountry()
+    {
+        return [
+            ['IE',   true],
+            ['GB',   true],
+            ['US',   true],
+            ['XY',  false],
+            ['I',   false],
+            ['EUR', false],
+            ['.',   false],
+            ['',    false],
+            [null,  false],
+            [false, false],
+            [1,     false],
+            // etc.
         ];
     }
 }

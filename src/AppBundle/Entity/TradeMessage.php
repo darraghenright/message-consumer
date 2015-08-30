@@ -44,10 +44,15 @@ class TradeMessage
      *
      * @ORM\Column(name="currency_from", type="string", length=3)
      *
-     * @Assert\NotBlank(message="currencyFrom is blank")
+     * @Assert\NotBlank(
+     *     message="currencyFrom is blank",
+     *     groups={"currencyFrom"}
+     * )
+     *
      * @Assert\Choice(
      *     callback={"AppBundle\Entity\Iso", "getIso4217CurrencyCodes"},
-     *     message="currencyFrom is not valid"
+     *     message="currencyFrom is not valid",
+     *     groups={"currencyFrom"}
      * )
      */
     private $currencyFrom;
@@ -57,10 +62,15 @@ class TradeMessage
      *
      * @ORM\Column(name="currency_to", type="string", length=3)
      *
-     * @Assert\NotBlank(message="currencyTo is blank")
+     * @Assert\NotBlank(
+     *     message="currencyTo is blank",
+     *     groups={"currencyTo"}
+     * )
+     *
      * @Assert\Choice(
      *     callback={"AppBundle\Entity\Iso", "getIso4217CurrencyCodes"},
-     *     message="currencyFrom is not valid"
+     *     message="currencyFrom is not valid",
+     *     groups={"currencyTo"}
      * )
      */
     private $currencyTo;
@@ -97,6 +107,7 @@ class TradeMessage
      *
      * @ORM\Column(name="time_placed", type="datetime")
      *
+     * @Assert\DateTime()
      * @Assert\NotBlank(message="timePlaced is blank")
      */
     private $timePlaced;
@@ -106,10 +117,15 @@ class TradeMessage
      *
      * @ORM\Column(name="originating_country", type="string", length=2)
      *
-     * @Assert\NotBlank(message="originatingCountry is blank")
+     * @Assert\NotBlank(
+     *     message="originatingCountry is blank",
+     *     groups={"originatingCountry"}
+     * )
+     *
      * @Assert\Choice(
      *     callback={"AppBundle\Entity\Iso", "getIso3166CountryCodes"},
-     *     message="currencyFrom is not valid"
+     *     message="originatingCountry is not valid",
+     *     groups={"originatingCountry"}
      * )
      */
     private $originatingCountry;
