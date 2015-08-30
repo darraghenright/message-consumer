@@ -19,7 +19,7 @@ class TradeControllerTest extends WebTestCase
     /**
      * @string
      */
-    const ERR_JSON_MALFORMED = 'Syntax error, malformed JSON';
+    const ERR_JSON_MALFORMED = 'JSON parse error';
 
     /**
      * setUp
@@ -94,6 +94,7 @@ class TradeControllerTest extends WebTestCase
 
         $request  = $this->client->getRequest();
         $response = $this->client->getResponse();
+        $message  = json_decode($response->getContent())->message;
 
         $this->assertFalse($request->headers->contains('Content-Type', 'application/json'));
         $this->assertSame(400, $response->getStatusCode());
@@ -103,8 +104,8 @@ class TradeControllerTest extends WebTestCase
     /**
      * testValidRequestContentType
      *
-     * Ensure that the request contains Content-Type
-     * of `application/json`.
+     * Ensure that the request contains
+     * Content-Type of `application/json`.
      */
     public function testValidRequestContentType()
     {
@@ -122,17 +123,30 @@ class TradeControllerTest extends WebTestCase
 
     /**
      * testMalformedJsonIsBadRequest
+     *
+     * JSON that cannot be parsed should
+     * return a status of `400 Bad Request`
+     * with an error message; e.g:
+     *
+     * * JSON parse error (Syntax Error)
+     * * JSON parse error (Syntax Error, Malformed JSON)
+     *
+     * This test does a partial match on the error
+     * string and does not validate the specific error
+     * message returned by `json_last_error_msg()`
+     *
+     * @dataProvider providerMalformedJsonIsBadRequest
      */
-    public function testMalformedJsonIsBadRequest()
+    public function testMalformedJsonIsBadRequest($content)
     {
         $server  = ['CONTENT_TYPE'  => 'application/json'];
-        $content = '{}]';
 
         $this->client->request('POST', $this->endpoint, [], [], $server, $content);
 
         $response = $this->client->getResponse();
+        $message  = json_decode($response->getContent())->message;
 
-        $this->assertSame(self::ERR_JSON_MALFORMED, $response->getContent());
+        $this->assertContains(self::ERR_JSON_MALFORMED, $message);
         $this->assertSame(400, $response->getStatusCode());
     }
 
@@ -150,6 +164,22 @@ class TradeControllerTest extends WebTestCase
             ['PUT'],
             ['OPTIONS'],
             ['PATCH'],
+        ];
+    }
+
+    /**
+     * providerMalformedJsonIsBadRequest
+     *
+     * @return array
+     */
+    public function providerMalformedJsonIsBadRequest()
+    {
+        return [
+            ['.'],          // JSON_ERROR_SYNTAX
+            ['{}]'],        // JSON_ERROR_STATE_MISMATCH
+            ['\\uGGGG'],    // JSON_ERROR_UTF8
+            ["{'foo': 1}"], // JSON_ERROR_SYNTAX
+            // etc.
         ];
     }
 }

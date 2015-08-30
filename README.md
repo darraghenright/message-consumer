@@ -70,7 +70,7 @@ A request containing a valid Trade Message is a well-formed JSON payload that va
     "amountSell": 1000,
     "amountBuy": 747.10,
     "rate": 0.7471,
-    "timePlaced": "24­JAN­15 10:27:44",
+    "timePlaced": "24-JAN-15 10:27:44",
     "originatingCountry": "FR"
 }
 ```

@@ -2,11 +2,13 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\TradeMessage;
+use RuntimeException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * TradeController
@@ -41,18 +43,19 @@ class TradeController extends Controller
         if (!$this->isValidContentType($request)) {
             return new JsonResponse([
                 'message' => 'Content-Type must be application/json',
-            ], 400);
+            ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        // try {
-        //     $data = $this->parseJsonRequest($request);
-        // } catch (RuntimeException $e) {
-        //     return new JsonResponse([
-        //         'message' => $e->getMessage(),
-        //     ], 400);
-        // }
+        try {
+            $data = $this->parseJsonRequest($request);
+        } catch (RuntimeException $e) {
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
 
-        // validate json structure
+        $message = new TradeMessage();
+        $message->fromArray($data);
 
         // persist!
 
@@ -71,5 +74,36 @@ class TradeController extends Controller
     private function isValidContentType(Request $request)
     {
         return 'json' === $request->getContentType();
+    }
+
+    /**
+     * parseJsonRequest
+     *
+     * Parse JSON data into its native PHP
+     * representation as an associative array.
+     *
+     * If the format of the JSON string received
+     * a `\RuntimeException` containting an error.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request $request
+     * @throws \RuntimeException
+     * @return array
+     */
+    private function parseJsonRequest(Request $request)
+    {
+        $data = [];
+        $json = $request->getContent();
+
+        if (!empty($json)) {
+            $data = json_decode($json, true);
+        }
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException(
+                sprintf('JSON parse error (%s)', json_last_error_msg())
+            );
+        }
+
+        return $data;
     }
 }

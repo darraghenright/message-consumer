@@ -81,6 +81,34 @@ class TradeMessage
     private $originatingCountry;
 
     /**
+     * fromArray
+     *
+     * Populate the current object
+     * from an associative array of
+     * values.
+     *
+     * @param array $data
+     */
+    public function fromArray(array $data)
+    {
+
+    }
+
+    /**
+     * toArray
+     *
+     * Retrieve an associative array
+     * of the values currently set
+     * for the current instance.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return get_object_vars($this);
+    }
+
+    /**
      * Get id
      *
      * @return integer
