@@ -151,6 +151,24 @@ class TradeControllerTest extends WebTestCase
     }
 
     /**
+     * testCompleteRequest
+     *
+     * @dataProvider providerCompleteRequest
+     */
+    public function testCompleteRequest($content, $statusCode)
+    {
+        $server  = ['CONTENT_TYPE'  => 'application/json'];
+
+        $this->client->request('POST', $this->endpoint, [], [], $server, $content);
+
+        $response = $this->client->getResponse();
+        //$message  = json_decode($response->getContent())->message;
+
+        //$this->assertContains(self::ERR_JSON_MALFORMED, $message);
+        $this->assertSame($statusCode, $response->getStatusCode());
+    }
+
+    /**
      * providerMethodNotAllowed
      *
      * @return array
@@ -181,5 +199,38 @@ class TradeControllerTest extends WebTestCase
             ["{'foo': 1}"], // JSON_ERROR_SYNTAX
             // etc.
         ];
+    }
+
+    /**
+     * providerCompleteRequest
+     *
+     * @return array
+     */
+    public function providerCompleteRequest()
+    {
+        $data = [
+            'userId'             => '134256',
+            'currencyFrom'       => 'EUR',
+            'currencyTo'         => 'GBP',
+            'amountSell'         => 1000,
+            'amountBuy'          => 747.10,
+            'rate'               => 0.7471,
+            'timePlaced'         => '24-JAN-15 10:27:44',
+            'originatingCountry' => 'FR',
+        ];
+
+        $requests = [
+            [json_encode($data, JSON_NUMERIC_CHECK), 201]
+        ];
+
+        $keys = array_keys($data);
+
+        foreach ($keys as $key) {
+            $_data = $data;
+            unset($_data[$key]);
+            $requests[] = [json_encode($_data, JSON_NUMERIC_CHECK), 422];
+        }
+
+        return $requests;
     }
 }

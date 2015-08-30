@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -81,6 +82,13 @@ class TradeMessage
      * @ORM\Column(name="amount_sell", type="decimal", scale=2)
      *
      * @Assert\NotBlank(message="amountSell is blank")
+     *
+     * @Assert\Range(
+     *     min=0,
+     *     minMessage="amountSell must be at least {{ limit }}"
+     * )
+     *
+     * @Assert\Type(type="numeric", message="amountSell is not a number")
      */
     private $amountSell;
 
@@ -90,6 +98,13 @@ class TradeMessage
      * @ORM\Column(name="amount_buy", type="decimal", scale=2)
      *
      * @Assert\NotBlank(message="amountBuy is blank")
+     *
+     * @Assert\Range(
+     *     min=0,
+     *     minMessage="amountBuy must be at least {{ limit }}"
+     * )
+     *
+     * @Assert\Type(type="numeric", message="amountBuy is not a number")
      */
     private $amountBuy;
 
@@ -99,6 +114,13 @@ class TradeMessage
      * @ORM\Column(name="rate", type="decimal", scale=6)
      *
      * @Assert\NotBlank(message="rate is blank")
+     *
+     * @Assert\Range(
+     *     min=0,
+     *     minMessage="rate must be at least {{ limit }}"
+     * )
+     *
+     * @Assert\Type(type="numeric", message="rate is not a number")
      */
     private $rate;
 
@@ -157,7 +179,7 @@ class TradeMessage
      */
     public function hasValidTimePlaced()
     {
-        if ($this->timePlaced instanceof DateTime) {
+        if (isset($this->timePlaced) && $this->timePlaced instanceof DateTime) {
             return $this->timePlaced <= new DateTime();
         }
 
@@ -212,7 +234,7 @@ class TradeMessage
         );
 
         if (false === $timePlaced) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Invalid datetime provided (%s)', $this->timePlaced)
             );
         }

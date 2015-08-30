@@ -3,12 +3,14 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\TradeMessage;
+use Exception;
 use RuntimeException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
 
 /**
  * TradeController
@@ -40,12 +42,14 @@ class TradeController extends Controller
      */
     public function messageAction(Request $request)
     {
+        // Ensure correct Content-Type
         if (!$this->isValidContentType($request)) {
             return new JsonResponse([
                 'message' => 'Content-Type must be application/json',
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
+        // Attempt to parse JSON
         try {
             $data = $this->parseJsonRequest($request);
         } catch (RuntimeException $e) {
@@ -54,20 +58,28 @@ class TradeController extends Controller
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
+        // Create, populate and validate
+
         $message = new TradeMessage();
 
-        $message->fromArray($data);
-        $message->transformData();
+        try {
 
-        $errors = $this->get('validator')->validate($message);
+            $message->fromArray($data);
+            $message->transformData();
+            $this->validateTradeMessage($message);
 
-        if (0 !== $errors->count()) {
+        } catch (Exception $e) {
             return new JsonResponse([
                 'message' => $e->getMessage(),
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        return new JsonResponse(['message' => 'Trade Message was created'], 201);
+        // Persist
+
+        // Success!
+        return new JsonResponse([
+            'message' => 'Trade Message was created'
+        ], JsonResponse::HTTP_CREATED);
     }
 
     /**
@@ -113,5 +125,38 @@ class TradeController extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * validateTradeMessage
+     *
+     * @param  \AppBundle\Entity\TradeMessage $message
+     * @throws \RuntimeException
+     */
+    function validateTradeMessage(TradeMessage $message)
+    {
+        $validationGroups = [
+            'Default',
+            'currencyFrom',
+            'currencyTo',
+            'originatingCountry',
+            'integrityCheckRate',
+            'integrityCheckTime',
+            'integrityCheckCurrency'
+        ];
+
+        $errors = $this->get('validator')->validate($message, $validationGroups);
+
+        if (0 !== $errors->count()) {
+            $errorStrings = array_map(function(ConstraintViolation $error) {
+                return $error->getMessage();
+            }, iterator_to_array($errors));
+
+            throw new RuntimeException(
+                sprintf('JSON validation error (%s)', implode(', ', $errorStrings))
+            );
+        }
+
+        return true;
     }
 }
