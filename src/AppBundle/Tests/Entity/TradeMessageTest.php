@@ -3,8 +3,8 @@
 namespace AppBundle\Tests\Entity;
 
 use AppBundle\Entity\TradeMessage;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-
 
 /**
  * TradeMessageTest
@@ -40,7 +40,25 @@ class TradeMessageTest extends WebTestCase
         $props = $message->toArray();
         unset($props['id']);
 
-
         $this->assertSame($data, $props);
+    }
+
+    /**
+     * testTransformData
+     *
+     * Ensure that the required data
+     * transformations are applied to
+     * specific fields; e.g: `timePlaced`
+     */
+    function testTransformData()
+    {
+        $message = new TradeMessage();
+        $message->setTimePlaced('24-JAN-15 10:27:44');
+        $message->transformData();
+
+        $timePlaced = $message->getTimePlaced();
+
+        $this->assertInstanceOf('\\DateTime', $timePlaced);
+        $this->assertSame('2015-01-24 10:27:44', $timePlaced->format('Y-m-d H:i:s'));
     }
 }

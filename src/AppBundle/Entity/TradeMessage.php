@@ -2,7 +2,6 @@
 
 namespace AppBundle\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -91,7 +90,11 @@ class TradeMessage
      */
     public function fromArray(array $data)
     {
-
+        foreach ($data as $property => $value) {
+            if (property_exists($this, $property)) {
+                $this->$property = $value;
+            }
+        }
     }
 
     /**
@@ -262,7 +265,7 @@ class TradeMessage
      * @param \DateTime $timePlaced
      * @return TradeMessage
      */
-    public function setTimePlaced(DateTime $timePlaced)
+    public function setTimePlaced($timePlaced)
     {
         $this->timePlaced = $timePlaced;
 
