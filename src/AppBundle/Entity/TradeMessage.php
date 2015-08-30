@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -14,6 +15,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TradeMessage
 {
+    /**
+     * @string
+     */
+    const FORMAT_TIME_PLACED = 'd-M-y H:i:s';
+
     /**
      * @var integer
      *
@@ -95,6 +101,29 @@ class TradeMessage
                 $this->$property = $value;
             }
         }
+    }
+
+    /**
+     * transformData
+     *
+     * Apply transformations to fields
+     * that require it, including:
+     *
+     * * Conversion of non-standard datetime string to \DateTime
+     */
+    public function transformData()
+    {
+        $timePlaced = DateTime::createFromFormat(
+            self::FORMAT_TIME_PLACED, $this->timePlaced
+        );
+
+        if (false === $timePlaced) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid datetime provided (%s)', $this->timePlaced)
+            );
+        }
+
+        $this->timePlaced = $timePlaced;
     }
 
     /**

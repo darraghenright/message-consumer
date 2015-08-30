@@ -133,7 +133,7 @@ class TradeControllerTest extends WebTestCase
      *
      * This test does a partial match on the error
      * string and does not validate the specific error
-     * message returned by `json_last_error_msg()`
+     * message returned by `json_last_error_msg()`.
      *
      * @dataProvider providerMalformedJsonIsBadRequest
      */
