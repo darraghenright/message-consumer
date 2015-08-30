@@ -133,8 +133,10 @@ class TradeMessage
     /**
      * @return boolean
      *
+     * Return `false` unless `amountBuy` is a product of `amountSell` and `rate`
+     *
      * @Assert\True(
-     *     message="Values validate rate, amountSell and amountBy do not appear to match",
+     *     message="Values validate rate, amountSell and amountBuy do not appear to match",
      *     groups={"integrityCheckRate"}
      * )
      */
@@ -146,6 +148,8 @@ class TradeMessage
     /**
      * @return boolean
      *
+     * Return `false` if `timePlaced` is a DateTime in the future.
+     *
      * @Assert\True(
      *     message="Value timePlaced is not valid",
      *     groups={"integrityCheckTime"}
@@ -153,11 +157,17 @@ class TradeMessage
      */
     public function hasValidTimePlaced()
     {
+        if ($this->timePlaced instanceof DateTime) {
+            return $this->timePlaced <= new DateTime();
+        }
 
+        return false;
     }
 
     /**
      * @return boolean
+     *
+     * Return `false` if `currencyFrom` and `currencyTo` are indentical.
      *
      * @Assert\True(
      *     message="Values currencyFrom and currencyTo should not match",
@@ -166,7 +176,7 @@ class TradeMessage
      */
     public function hasDifferentCurrencyFromAndCurrencyTo()
     {
-
+        return 0 !== strcmp($this->currencyFrom, $this->currencyTo);
     }
 
     /**
