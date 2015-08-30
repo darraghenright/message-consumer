@@ -49,11 +49,7 @@ class TradeMessageTest extends WebTestCase
         $message = new TradeMessage();
         $message->fromArray($data);
 
-        // get property values, excluding `id`
-        $props = $message->toArray();
-        unset($props['id']);
-
-        $this->assertSame($data, $props);
+        $this->assertSame($data, $message->toArray());
     }
 
     /**
