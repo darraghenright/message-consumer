@@ -7,13 +7,13 @@
 
 As a component of the **Market Trade Processor**, the **Message Consumer** provides a HTTP endpoint to consume **Trade Message** data.
 
-Messages are submitted to the Message Consumer via method `POST` to the endpoint `/trade/message/`.
+A Trade Message are submitted to the Message Consumer via method `POST` to the endpoint `/trade/message/`.
 
-## Lifecycle
+## Message Lifecycle
 
-The lifecycle of a Trade Message is the cycle in which a HTTP request received by the Message Consumer is handled, and an appropriate HTTP response is generated and returned to the originating client.
+A HTTP request containing a Trade Message is received and handled by the Message Consumer, and an appropriate HTTP response is generated and returned to the originating client.
 
-The following diagram documents the lifecycle and possible outcomes of a single HTTP request:
+The following diagram documents the possible outcomes of a single HTTP request:
 
 ![Message Consumer request flow](doc/assets/message-consumer-request-flow.png)
 
@@ -22,17 +22,16 @@ The following diagram documents the lifecycle and possible outcomes of a single 
 Trade Message data comprises the `POST` payload of the HTTP request received by the Message Consumer. A valid request:
 
 * is received via method `POST`
-* may be anonymous (as no `Authorization` is specified)
+* may be anonymous (`Authorization` is not required in the feature spec)
 * includes `Content-Type` header `application/json`
 * contains a well-formed JSON payload
 * contains a JSON payload that validates to an expected format
 
-
 ### Response
 
-The Message Consumer handles the request and responds with an appropriate HTTP response as per the documented flow.
+The Message Consumer handles the request and responds with an appropriate HTTP response as per the documented flow. The requesting client is expected to determine the outcome from the response status code; e.g: `201 Created`.
 
-The requesting client can determine the outcome from the response status code; e.g: `201 Created`. Additionally, each response is of type `application/json` and contains a `message` body that describes the outcome in greater detail; e.g:
+Additionally, each response is of type `application/json` and contains a `message` body that describes the outcome in greater detail; e.g:
 
 ````
 {
@@ -40,7 +39,7 @@ The requesting client can determine the outcome from the response status code; e
 }
 ````
 
-In this case, a Trade Message could not be parsed due to incorrect format - this message would accompany a HTTP Status Code of `400 Bad Request`.
+The above example would accompany a HTTP Status Code of `400 Bad Request`, in which a Trade Message could not be parsed due to incorrect format.
 
 #### Summary 
 
@@ -53,11 +52,13 @@ A summary of all expected HTTP Response Codes returned by the Message Consumer c
 * `503 Service Unavailable` for persistence issues; e.g: database outage
 * `201 Created` for successful persistence
 
-## Structure and Data
+Status codes indicating an error on the server/infrastructure level are out of scope for this document; e.g `500 Internal Server Error` or `503 Service Unavailable` indicating that the endpoint's environment is misconfigured of offline.
 
-### Overview
+## Message Structure and Data
 
-A valid request contains a well-formed JSON payload that validates to an expected format. An example JSON payload is as follows:
+### Structure Validation
+
+A request containing a valid Trade Message is a well-formed JSON payload that validates to an expected format. An example JSON payload is as follows:
 
 ```
 {
@@ -72,10 +73,12 @@ A valid request contains a well-formed JSON payload that validates to an expecte
 }
 ```
 
-A JSON payload that does not strictly comply to this structure will return a HTTP Status Code of `422 Unprocessable Entity`. The JSON structure provided is considered invalid if:
+Additionally, the JSON structure provided is considered invalid if:
 
-* any *expected* fields are missing
-* any *unexpected* fields are present
+* *expected* fields are missing
+* *unexpected* fields are present
+
+A JSON payload that does not strictly comply to the structure defined returns a HTTP Status Code of `422 Unprocessable Entity`.
 
 ### Data Validation
 
@@ -90,19 +93,26 @@ Values for all fields are required. The JSON data provided is considered invalid
 * `timePlaced` - type `string` corresponding to date format `j-M-y H:i:s`
 * `originatingCountry` - type `string` corresponding to 2-digit ISO 3166-1 Alpha-2 Country Code
 
+The values of `rate`, `amountSell` and `amountBuy` are inter-related. `amountBuy` is the product of `amountSell` and `rate`; i.e:
+
+````
+amountSell * rate = amountBuy
+````
+
+Validation will be performed to cross-check and ensure the integrity of the data contained in these fields.
+
 *ISO Code Data Sources:*
 
 * [ISO 4217 Currency Codes (.csv)](http://data.okfn.org/data/core/currency-codes/r/codes-all.csv)
-* [ISO 3166-1 Alpha-2 Country Codes](http://data.okfn.org/data/core/country-codes/r/country-codes.csv)
+* [ISO 3166-1 Alpha-2 Country Codes (.csv)](http://data.okfn.org/data/core/country-codes/r/country-codes.csv)
 
-### Data Transformation and Additional Validation
-
-Convert to centesimal?
+### Data Transformation
 
 The following data will be transformed prior to data persistence:
 
-* `amountSell` will be converted into an `integer` value representing 
 * `timePlaced` will be reformatted according to MySQL's `datetime` format; i.e: `Y-m-d H:i:s`
+* `amountSell` and `amountBuy` will be converted to `float`
 
+The values of `amountSell` and `amountBuy` may also be converted to their centesimal representation, assuming that each value received is a monetary unit (USD, EUR, GBP) with 1/100th subdivisions, (cents or pence) and stored internally as type `integer`.
 
-The provided `rate` and `amountSell` can be used to determine the provided `amountBuy` - therefore this will also be validated
+However, the requirement specification does not currently specify the currencies the Message Consumer expects to receive, and since not all currencies are centesimal (e.g Japanese Yen), values will not currently be transformed in this manner.
