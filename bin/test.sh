@@ -4,7 +4,7 @@ echo 'Running unit tests...'
 
 # Ensure phpunit is installed
 
-[[ ! -x `which phpunit` ]] && {
+[[ -z `which phpunit` ]] && {
   echo 'Error: cannot find phpunit in the current path. Exiting.';
   exit 1;
 }

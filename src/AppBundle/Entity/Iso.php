@@ -5,6 +5,9 @@ namespace AppBundle\Entity;
 /**
  * Iso
  *
+ * Utility class containing various
+ * ISO codes for data input validation.
+ *
  * @author Darragh Enright <darraghenright@gmail.com>
  */
 class Iso

@@ -238,6 +238,29 @@ class TradeMessage
     }
 
     /**
+     * toArray
+     *
+     * Retrieve an associative array
+     * of the values currently set
+     * for the current instance.
+     *
+     * Exclude the properties that are
+     * not part of the data received
+     * in the original request:
+     *
+     * * `id`
+     * * `createdAt`
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return array_filter(get_object_vars($this), function($property) {
+            return !in_array($property, ['id', 'createdAt']);
+        }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
      * transformData
      *
      * Apply transformations to fields
@@ -261,20 +284,6 @@ class TradeMessage
         }
 
         $this->timePlaced = $timePlaced;
-    }
-
-    /**
-     * toArray
-     *
-     * Retrieve an associative array
-     * of the values currently set
-     * for the current instance.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return get_object_vars($this);
     }
 
     /**

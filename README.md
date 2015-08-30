@@ -3,6 +3,25 @@
 * Author: Darragh Enright <darraghenright@gmail.com>
 * Date: 2015-08-29
 
+## Table of Contents
+
+* Description
+  * Introduction
+* Message Lifecycle
+  * Request
+  * Response
+    * Summary
+* Message Structure and Data
+  * Structure Validation
+  * Data Validation
+    * Fields
+    * Data Integrity
+  * Data Transformation
+* Implementation
+  * Development
+  * Testing
+  * Deployment
+
 ## Description
 
 ### Introduction
@@ -117,3 +136,46 @@ The following data will be transformed prior to data persistence:
 *Note*: The values of `amountSell` and `amountBuy` may also be converted to their centesimal representation, assuming that each value received is a monetary unit (USD, EUR, GBP) with 1/100th subdivisions, (cents or pence) and stored internally as type `integer`.
 
 However, the requirement specification does not currently specify the currencies the Message Consumer expects to receive, and since not all currencies are centesimal (e.g Japanese Yen), values will not currently be transformed in this manner.
+
+## Implementation
+
+### Development
+
+The application is built in PHP using Symfony2 version `2.7.*`. Once the repository is cloned, run `composer update`. You will be prompted for the following configuration parameters:
+
+* `database_host`
+* `database_port`
+* `database_name`
+* `database_user`
+
+Once complete, run the following command to initialise the application database and schema:
+
+```
+./bin/init.sh
+```
+
+The application can be served locally in development mode on the command line from the project root as follows:
+
+```
+./bin/serve.sh
+```
+
+You can now issue an ad-hoc request to ensure that everything is working correctly. The following command issues a `POST` request via `curl` with an example JSON payload to the endpoint `/trade/message/` on port `8000`:
+
+```
+./bin/request.sh
+```
+
+### Testing
+
+A suite of unit and functional tests accompany the implementation. Tests can be found in directory `src/AppBundle/Tests/`. Tests can be run on the command line from the project root as follows:
+
+```
+./bin/test.sh
+```
+
+### Deployment
+
+...
+
+----
