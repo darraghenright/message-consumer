@@ -222,3 +222,9 @@ RDS DB parameters are automatically injected into the environment as `RDS_*` env
 }
 ```
 Once Elastic Beanstalk finishes uploading, building and configuring the environment, the application should be live.
+
+To review logs in the event of an error, run `eb log`.
+
+### Update
+
+To update changes use `eb deploy`.

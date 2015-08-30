@@ -1,7 +1,7 @@
 parameters:
-    database_host:     127.0.0.1
-    database_port:     ~
-    database_name:     ~
-    database_user:     ~
-    database_password: ~
-    secret:            055c3ce9940b1dbe1864d13771830a345c69e522
+    database_host: 127.0.0.1
+    database_port: ~
+    database_name: ~
+    database_user: ~
+    database_pass: ~
+    secret:        ~
