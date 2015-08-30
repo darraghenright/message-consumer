@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="trade_message")
  * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks
  *
  * @author Darragh Enright <darraghenright@gmail.com>
  */
@@ -30,6 +31,13 @@ class TradeMessage
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
 
     /**
      * @var string
@@ -151,6 +159,16 @@ class TradeMessage
      * )
      */
     private $originatingCountry;
+
+    /**
+     * onPrePersist
+     *
+     * @ORM\PrePersist
+     */
+    public function onPrePersist()
+    {
+        $this->createdAt = new DateTime();
+    }
 
     /**
      * @return boolean

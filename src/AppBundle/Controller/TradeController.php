@@ -63,11 +63,9 @@ class TradeController extends Controller
         $message = new TradeMessage();
 
         try {
-
             $message->fromArray($data);
             $message->transformData();
             $this->validateTradeMessage($message);
-
         } catch (Exception $e) {
             return new JsonResponse([
                 'message' => $e->getMessage(),
@@ -75,10 +73,19 @@ class TradeController extends Controller
         }
 
         // Persist
+        try {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($message);
+            $em->flush();
+        } catch (Exception $e) {
+            return new JsonResponse([
+                'message' => 'Service Unavailable. Your request could not be processed at this time.',
+            ], JsonResponse::HTTP_SERVICE_UNAVAILABLE);
+        }
 
         // Success!
         return new JsonResponse([
-            'message' => 'Trade Message was created'
+            'message' => 'Your request was created!'
         ], JsonResponse::HTTP_CREATED);
     }
 
