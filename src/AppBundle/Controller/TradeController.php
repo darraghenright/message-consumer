@@ -44,6 +44,12 @@ class TradeController extends Controller
             ], 400);
         }
 
+        // parse json
+
+        // validate json structure
+
+        // persist!
+
         return new JsonResponse(['data' => '1']);
     }
 }
