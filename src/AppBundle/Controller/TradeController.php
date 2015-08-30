@@ -19,6 +19,6 @@ class TradeController extends Controller
      */
     public function messageAction(Request $request)
     {
-        return new JsonResponse(null);
+        return new JsonResponse(['data' => '1']);
     }
 }
