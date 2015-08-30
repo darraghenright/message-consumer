@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * TradeMessage
@@ -33,6 +34,8 @@ class TradeMessage
      * @var string
      *
      * @ORM\Column(name="user_id", type="string", length=255)
+     *
+     * @Assert\NotBlank(message="userId is blank")
      */
     private $userId;
 
@@ -40,6 +43,12 @@ class TradeMessage
      * @var string
      *
      * @ORM\Column(name="currency_from", type="string", length=3)
+     *
+     * @Assert\NotBlank(message="currencyFrom is blank")
+     * @Assert\Choice(
+     *     callback={"AppBundle\Entity\Iso", "getIso4217CurrencyCodes"},
+     *     message="currencyFrom is not valid"
+     * )
      */
     private $currencyFrom;
 
@@ -47,6 +56,12 @@ class TradeMessage
      * @var string
      *
      * @ORM\Column(name="currency_to", type="string", length=3)
+     *
+     * @Assert\NotBlank(message="currencyTo is blank")
+     * @Assert\Choice(
+     *     callback={"AppBundle\Entity\Iso", "getIso4217CurrencyCodes"},
+     *     message="currencyFrom is not valid"
+     * )
      */
     private $currencyTo;
 
@@ -54,6 +69,8 @@ class TradeMessage
      * @var string
      *
      * @ORM\Column(name="amount_sell", type="decimal", scale=2)
+     *
+     * @Assert\NotBlank(message="amountSell is blank")
      */
     private $amountSell;
 
@@ -61,6 +78,8 @@ class TradeMessage
      * @var string
      *
      * @ORM\Column(name="amount_buy", type="decimal", scale=2)
+     *
+     * @Assert\NotBlank(message="amountBuy is blank")
      */
     private $amountBuy;
 
@@ -68,6 +87,8 @@ class TradeMessage
      * @var string
      *
      * @ORM\Column(name="rate", type="decimal", scale=2)
+     *
+     * @Assert\NotBlank(message="rate is blank")
      */
     private $rate;
 
@@ -75,6 +96,8 @@ class TradeMessage
      * @var \DateTime
      *
      * @ORM\Column(name="time_placed", type="datetime")
+     *
+     * @Assert\NotBlank(message="timePlaced is blank")
      */
     private $timePlaced;
 
@@ -82,6 +105,12 @@ class TradeMessage
      * @var string
      *
      * @ORM\Column(name="originating_country", type="string", length=2)
+     *
+     * @Assert\NotBlank(message="originatingCountry is blank")
+     * @Assert\Choice(
+     *     callback={"AppBundle\Entity\Iso", "getIso3166CountryCodes"},
+     *     message="currencyFrom is not valid"
+     * )
      */
     private $originatingCountry;
 
