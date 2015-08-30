@@ -5,6 +5,8 @@
 
 ## Description
 
+### Introduction
+
 As a component of the **Market Trade Processor**, the **Message Consumer** provides a HTTP endpoint to consume **Trade Message** data.
 
 A Trade Message are submitted to the Message Consumer via method `POST` to the endpoint `/trade/message/`.

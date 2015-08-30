@@ -69,24 +69,34 @@ class TradeControllerTest extends WebTestCase
     }
 
     /**
-     * testContentType
+     * testInvalidContentType
      *
      * Ensure that the request contains Content-Type
      * of `application/json`. Otherwise return status
      * `400 Bad Request` with error message.
      */
-    public function testContentType()
+    public function testInvalidContentType()
     {
         $this->client->request('POST', $this->endpoint, [], [], ['Content-Type'  => 'plain/text']);
         $statusCode = $this->client->getResponse()->getStatusCode();
+        $content = $this->client->getResponse()->getContent();
 
         $this->assertSame(400, $statusCode);
-        // $this->assertSame(); -> string
+        $this->assertSame('{"message":"Content-Type must be application/json"}');
     }
 
-    public function testJsonValidation()
+    /**
+     * testValidContentType
+     *
+     * Ensure that the request contains Content-Type
+     * of `application/json`.
+     */
+    public function testValidContentType()
     {
+        $this->client->request('POST', $this->endpoint, [], [], ['Content-Type'  => 'application/json']);
+        $content = $this->client->getResponse()->getContent();
 
+        $this->assertNotSame('{"message":"Content-Type must be application/json"}');
     }
 
     /**
