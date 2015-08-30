@@ -251,6 +251,9 @@ class TradeMessage
             self::FORMAT_TIME_PLACED, $this->timePlaced
         );
 
+        // @TODO remove as this might not be required.
+        // errors should be caught by data validation.
+
         if (false === $timePlaced) {
             throw new InvalidArgumentException(
                 sprintf('Invalid datetime provided (%s)', $this->timePlaced)
