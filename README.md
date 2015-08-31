@@ -62,7 +62,7 @@ Additionally, each response is of type `application/json` and contains a `messag
 
 The above example would accompany a HTTP Status Code of `400 Bad Request`, in which a Trade Message could not be parsed due to incorrect format.
 
-#### Summary 
+#### Summary
 
 A summary of all expected HTTP Response Codes returned by the Message Consumer component is as follows:
 
@@ -117,7 +117,7 @@ Validation will be performed to cross-check and ensure the integrity of the data
 
 1. The values of `rate`, `amountSell` and `amountBuy` are inter-related. `amountBuy` is the product of `amountSell` and `rate`; i.e: `amountSell * rate = amountBuy`.
 
-2. All times are assumed to be UTC. The value for `timePlaced` should not be greater than the time the request is received. 
+2. All times are assumed to be UTC. The value for `timePlaced` should not be greater than the time the request is received.
 
 3. The values for `currencyFrom` and `currencyTo` should not match.
 
@@ -164,6 +164,12 @@ You can now issue an ad-hoc request to ensure that everything is working correct
 
 ```
 ./bin/request.sh
+```
+
+A basic fixtures script may be run to populate the database with random `TradeMessage` records. The fixtures file is located at `src/AppBundle/DataFixtures/ORM/LoadTradeMessageFixtures.php`. The script can be run in the terminal from the project root as follows:
+
+```
+app/console doctrine:fixtures:load
 ```
 
 ### Testing
