@@ -194,7 +194,7 @@ Follow the steps to initialise the application for deployment:
 
 A configuration should now be located at `.elasticbeanstalk/config.yml`
 
-### Create
+#### Create
 
 Next, create an environment and deploy the application:
 
@@ -225,8 +225,8 @@ RDS DB parameters are automatically injected into the environment as `RDS_*` env
 
 Once Elastic Beanstalk finishes uploading, building and configuring the environment, the application should be live.
 
-To review logs in the event of an error, run `eb log`.
+To review logs in the event of an error, run `eb logs`.
 
 ### Update
 
-To update changes use `eb deploy`.
+To update committed changes use `eb deploy`.
