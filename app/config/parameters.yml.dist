@@ -3,5 +3,5 @@ parameters:
     database_port: ~
     database_name: ~
     database_user: ~
-    database_pass: ~
+    database_password: ~
     secret:        51b315647ccca5050ac2f535c88b8207c9b06c94
