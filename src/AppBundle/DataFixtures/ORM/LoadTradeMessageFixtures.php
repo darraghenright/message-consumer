@@ -23,39 +23,71 @@ class LoadTradeMessageFixtures implements FixtureInterface
      */
     private $users = [
         [
-            'userId'             => '10000',
+            'userId'             => '111111',
+            'originatingCountry' => 'AU',
+            'currencyFrom'       => 'AUD',
+        ],
+        [
+            'userId'             => '222222',
+            'originatingCountry' => 'CA',
+            'currencyFrom'       => 'CAD',
+        ],
+        [
+            'userId'             => '333333',
             'originatingCountry' => 'IE',
             'currencyFrom'       => 'EUR',
         ],
         [
-            'userId'             => '20000',
+            'userId'             => '444444',
             'originatingCountry' => 'GB',
             'currencyFrom'       => 'GBP',
         ],
         [
-            'userId'             => '30000',
+            'userId'             => '555555',
             'originatingCountry' => 'US',
             'currencyFrom'       => 'USD',
         ],
     ];
 
     /**
-     * Currency exchange matrix
+     * Currency exchange matrix.
+     * Approx rates for 2015-08-31.
      *
      * @var array
      */
     private $rates = [
+
+        'AUD' => [
+            'CAD' => 0.93512,
+            'GBP' => 0.46321,
+            'EUR' => 1.36705,
+            'USD' => 1.53466,
+        ],
+
+        'CAD' => [
+            'AUD' => 1.06938,
+            'GBP' => 0.49534,
+            'EUR' => 1.36705,
+            'USD' => 1.53466,
+        ],
+
         'GBP' => [
+            'AUD' => 2.15887,
+            'CAD' => 2.01880,
             'EUR' => 1.36705,
             'USD' => 1.53466,
         ],
 
         'EUR' => [
+            'AUD' => 1.57715,
+            'CAD' => 1.47483,
             'GBP' => 0.731501,
             'USD' => 1.12275,
         ],
 
         'USD' => [
+            'AUD' => 1.40528,
+            'CAD' => 1.31428,
             'EUR' => 0.890672,
             'GBP' => 0.651609,
         ],
@@ -66,9 +98,12 @@ class LoadTradeMessageFixtures implements FixtureInterface
      */
     public function load(ObjectManager $em)
     {
+        // boost memory limit for fixture generation
+        ini_set('memory_limit', '1G');
+
         // create a date period spanning three months
         $dp = new DatePeriod(
-            new DateTime('3 months ago'),
+            new DateTime('4 months ago'),
             new DateInterval('P1D'),
             new DateTime()
         );
@@ -80,7 +115,7 @@ class LoadTradeMessageFixtures implements FixtureInterface
             foreach ($this->users as $user) {
 
                  // send a variable number of messages per user
-                $sendMessages = mt_rand(0, 50);
+                $sendMessages = mt_rand(10, 50);
 
                 while ($sendMessages--) {
 
@@ -88,6 +123,10 @@ class LoadTradeMessageFixtures implements FixtureInterface
 
                     $currencyTo = array_rand($this->rates[$currencyFrom]);
                     $rate = $this->rates[$currencyFrom][$currencyTo];
+
+                    // add some very primitive randomness...
+                    // mock out rate flucutations over time.
+                    $rate = round($rate + mt_rand(-99, 99) / 999, 6);
 
                     $message = (new TradeMessage())
                         ->setCurrencyFrom($currencyFrom)
