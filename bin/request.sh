@@ -15,6 +15,6 @@ read -r -d '' DATA <<EOF
 }
 EOF
 
-curl -iv :8000/trade/message/ \
+curl -iv consumer-dev.elasticbeanstalk.com/trade/message/ \
      -H 'Content-Type: application/json' \
      -d "$DATA"
