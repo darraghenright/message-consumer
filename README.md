@@ -217,10 +217,12 @@ RDS DB parameters are automatically injected into the environment as `RDS_*` env
         "database_port": "RDS_PORT",
         "database_name": "RDS_DB_NAME",
         "database_user": "RDS_USERNAME",
-        "database_pass": "RDS_PASSWORD"
+        "database_password": "RDS_PASSWORD",
+        "secret": "APP_SECRET"
     }
 }
 ```
+
 Once Elastic Beanstalk finishes uploading, building and configuring the environment, the application should be live.
 
 To review logs in the event of an error, run `eb log`.

@@ -1,7 +1,6 @@
-# Learn more about services, parameters and containers at
-# http://symfony.com/doc/current/book/service_container.html
+# override standard exception controller
 parameters:
-#    parameter_name: value
+    twig.controller.exception.class: AppBundle\Controller\ExceptionController
 
 services:
 #    service_name:
