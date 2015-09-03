@@ -9,6 +9,7 @@
   * Introduction
 * Message Lifecycle
   * Request
+    * Rate Limiting
   * Response
     * Summary
 * Message Structure and Data
@@ -47,6 +48,27 @@ Trade Message data comprises the `POST` payload of the HTTP request received by 
 * includes `Content-Type` header `application/json`
 * contains a well-formed JSON payload
 * contains a JSON payload that validates to an expected format
+
+#### Rate Limiting
+
+A simple implementation of the "leaky bucket" strategy facilitates rate limiting in the application. Access tokens are stored with a ttl in a small Redis ElastiCache cluster.
+
+A `RateLimitVoter` security voter is registered as a service. When a `POST` request to `/trade/message` is received, this service intercepts the request, and using the `X-FORWARDED-FOR` header specified by AWS's Elastic Load Balancer. It performs a `KEY` glob for similar keys. If the number of aggregated matches returned exceeds a configured maximum, the request is denied with a `500 Internal Server Error`.
+
+The following environmental variables are injected into the Elastic Beanstalk production environment. This is specified in `composer.json` under `extra.incenteev-parameters.env-map`:
+
+```
+"redis_dsn": "REDIS_DSN",
+"ratelimit_max": "RATELIMIT_MAX",
+"ratelimit_ttl": "RATELIMIT_TTL"
+```
+
+> Currently the production environment is configured with a `ratelimit_max` of **5** connections/tokens, with a `ratelimit_ttl` of **5** seconds.
+
+For more details see:
+
+* `src/AppBundle/Security/Voter/RateLimitVoter.php` for implementation
+* `app/config/security`
 
 ### Response
 
@@ -210,10 +232,10 @@ Next, create an environment and deploy the application:
 * Enter an RDS DB username
 * Enter an RDS DB master password
 
-The process will then begin - git zip will be uploaded and application
+The process will then begin - the latest commit is zipped and uploaded and the application
 will be bootstrapped. This will take a few minutes.
 
-RDS DB parameters are automatically injected into the environment as `RDS_*` environment variables. The application transparently uses these values automatically if present. This is specified in `composer.json` under `extra.incenteev-parameters.env-map`; i.e:
+RDS DB parameters are automatically injected into the environment as `RDS_*` environment variables. The application transparently uses these values automatically if present. This is specified in `composer.json` under `extra.incenteev-parameters.env-map`:
 
 ```
 "incenteev-parameters": {
@@ -224,7 +246,10 @@ RDS DB parameters are automatically injected into the environment as `RDS_*` env
         "database_name": "RDS_DB_NAME",
         "database_user": "RDS_USERNAME",
         "database_password": "RDS_PASSWORD",
-        "secret": "APP_SECRET"
+        "secret": "APP_SECRET",
+        "redis_dsn": "REDIS_DSN",
+        "ratelimit_max": "RATELIMIT_MAX",
+        "ratelimit_ttl": "RATELIMIT_TTL"
     }
 }
 ```
