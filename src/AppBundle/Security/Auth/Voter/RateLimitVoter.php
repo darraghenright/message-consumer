@@ -57,7 +57,9 @@ class RateLimitVoter implements VoterInterface
      */
     public function __construct(RequestStack $requestStack, Client $redis, $rateLimitMax, $rateLimitTtl)
     {
-        $this->request      = $requestStack->getCurrentRequest();
+        $request = $requestStack->getCurrentRequest();
+
+        $this->addr         = $request->server->get('FORWARDED_FOR') ?: $request->server->get('REMOTE_ADDR');
         $this->redis        = $redis;
         $this->rateLimitMax = $rateLimitMax;
         $this->rateLimitTtl = $rateLimitTtl;
@@ -68,18 +70,30 @@ class RateLimitVoter implements VoterInterface
      */
     public function vote(TokenInterface $token, $object, array $attributes)
     {
-        $addr = $this->request->server->get('FORWARDED_FOR') ?: $this->request->server->get('REMOTE_ADDR');
-        $key  = sprintf('%s_%s', $addr, microtime());
-
-        $this->redis->set($key, 1);
-        $this->redis->expire($key, $this->rateLimitTtl);
-
-        $pattern = sprintf('%s_*', $addr);
+        $pattern = sprintf('%s_*', $this->addr);
         $matches = $this->redis->keys($pattern);
 
-        return count($matches) > $this->rateLimitMax
-            ? VoterInterface::ACCESS_DENIED
-            : VoterInterface::ACCESS_ABSTAIN;
+        if (count($matches) > $this->rateLimitMax) {
+            return VoterInterface::ACCESS_DENIED;
+        } else {
+            $this->addAccessToken();
+            return VoterInterface::ACCESS_ABSTAIN;
+        }
+    }
+
+    /**
+     * addAccessToken
+     *
+     * SET an access key/value with
+     * EXPIRE after the defined ttl.
+     */
+    private function addAccessToken()
+    {
+        $val = microtime();
+        $key  = sprintf('%s_%s', $this->addr, $val);
+
+        $this->redis->set($key, $val);
+        $this->redis->expire($key, $this->rateLimitTtl);
     }
 
     /**
