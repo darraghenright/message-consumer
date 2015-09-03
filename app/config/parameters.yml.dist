@@ -5,3 +5,7 @@ parameters:
     database_user: ~
     database_password: ~
     secret:        ~
+    redis_dsn:     ~
+    ratelimit_max: ~
+    ratelimit_ttl: ~
+

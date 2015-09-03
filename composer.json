@@ -20,7 +20,9 @@
         "sensio/distribution-bundle": "~4.0",
         "sensio/framework-extra-bundle": "~3.0,>=3.0.2",
         "incenteev/composer-parameter-handler": "~2.0",
-        "doctrine/doctrine-fixtures-bundle": "^2.2"
+        "doctrine/doctrine-fixtures-bundle": "^2.2",
+        "snc/redis-bundle": "^1.1",
+        "predis/predis": "1.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
@@ -63,7 +65,10 @@
                 "database_name": "RDS_DB_NAME",
                 "database_user": "RDS_USERNAME",
                 "database_password": "RDS_PASSWORD",
-                "secret": "APP_SECRET"
+                "secret": "APP_SECRET",
+                "redis_dsn": "REDIS_DSN",
+                "ratelimit_max": "RATELIMIT_MAX",
+                "ratelimit_ttl": "RATELIMIT_TTL"
             }
         }
     }

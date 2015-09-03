@@ -2,6 +2,10 @@
 # http://symfony.com/doc/current/book/security.html
 security:
 
+    #
+    access_decision_manager:
+        strategy: unanimous
+
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
         in_memory:
@@ -15,10 +19,7 @@ security:
 
         main:
             anonymous: ~
-            # activate different ways to authenticate
+            stateless: true
 
-            # http_basic: ~
-            # http://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
-
-            # form_login: ~
-            # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
+    access_control:
+        - { path: ^/trade/message/, roles: IS_AUTHENTICATED_ANONYMOUSLY }

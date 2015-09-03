@@ -3,6 +3,13 @@ parameters:
     twig.controller.exception.class: AppBundle\Controller\ExceptionController
 
 services:
-#    service_name:
-#        class: AppBundle\Directory\ClassName
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+    rate_limit_voter:
+        class: AppBundle\Security\Auth\Voter\RateLimitVoter
+        arguments:
+            - @request_stack
+            - @snc_redis.ratelimit
+            - %ratelimit_max%
+            - %ratelimit_ttl%
+        public: false
+        tags:
+            - { name: security.voter }
